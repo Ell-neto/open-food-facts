@@ -5,7 +5,7 @@
 Arquivos e seus componentes:
 
     Objetivo: A organização dos arquivos é para manusear com melhor facilidade algumas das estruturas internas para fazer o arquivo principal rodar e ter uma legibilidade mais adequada de compreendé-lo. Os arquivos foram separados em 4, são eles: main, foods.apps, foods.controller e foods.service. 
-    O arquivo main deixei responsável apenas o Puppeteer, que vai iniciar um navegador headless com as configurações especificadas e retornando uma instância desse navegador para uso, o responsável pela funcionalidade de todo código de acordo com o que gostaria. No foods.apps deixei as rotas da pesquisa de acordo com o que o usuario tenha interesse, um Get para pesquisar tudo por aquele produto e outro Get para pesquisar por um id do produto. O foods.controller.js foi feito para deixar as configurações do Swagger, que sabemos que ele permite documentar, testar e consumir APIs de forma mais eficiente, ou seja, o intuito do código será melhorá-lo mais ainda futuramente e o Swagger sempre será essencial pois com ele temos uma interface interativa que descreve os endpoints, ele junto com o foods.apps é o "andar da carruagem".  E no foods.service temos as principais funções que faz todo o "controle da carruagem", e sobre essas funções irei descrevé-las melhor mais a frente.
+    O arquivo main deixei responsável apenas o Puppeteer, que vai iniciar um navegador headless com as configurações especificadas e retornando uma instância desse navegador para uso, o responsável pela funcionalidade de todo código de acordo com o que gostaria. No foods.apps deixei as rotas da pesquisa de acordo com o que o usuario tenha interesse, um Get para pesquisar tudo por aquele produto, um Get para pesquisar por um valor de nutrition e/ou score, e outro Get para pesquisar por um id do produto. O foods.controller.js foi feito para deixar as configurações do Swagger, que sabemos que ele permite documentar, testar e consumir APIs de forma mais eficiente, ou seja, o intuito do código será melhorá-lo mais ainda futuramente e o Swagger sempre será essencial pois com ele temos uma interface interativa que descreve os endpoints, ele junto com o foods.apps é o "andar da carruagem".  E no foods.service temos as principais funções que faz todo o "controle da carruagem", e sobre essas funções irei descrevé-las melhor mais a frente.
     
 
 Função findFoods:
@@ -27,6 +27,27 @@ Função findFoods:
   
         Temos o retorno dos dados via terminal:
   ![func1b](https://github.com/Ell-neto/open-food-facts/blob/master/src/findfoods/others/imgs/primeiro_leiteb.png)
+
+
+Função foodsScore:
+
+    Objetivo: A função busca por alimentos no site Open Food Facts com base em um score fornecido, sendo o nutritionscore e/ou o novaScore, retornando um array de objetos.
+
+    Como usar: Rodar o node e acessar a url 'http://localhost:3000/products?nutrition=A&nova=1' (por exemplo, e lembrando que o nutrition varia de 1 até 4 e o nova de A até D), assim, os dados vão surgir na tela.
+
+    Estrutura Principal:
+        Express: Configuração de um servidor express na porta 3000.
+        Swagger: Documentação Swagger para a API.
+        Puppeteer: Navegação automatizada no site Open Food Facts.
+        Express GET Endpoint (/products/:productName):
+            Usa Puppeteer para buscar produtos no Open Food Facts com base no nome fornecido.
+            Retorna dados dos produtos encontrados.
+    Imagens:
+        Temos o retorno dos dados via url (localhost): 
+  ![func1anovo](https://github.com/Ell-neto/open-food-facts/blob/master/src/findfoods/others/imgs/scores_host.png)
+  
+        Temos o retorno dos dados via terminal, reforçando que aqui ele mostra todos os dados obtidos mas apenas o que é desejado pelo usuário sai como retorno esperado na url:
+  ![func1bnovo](https://github.com/Ell-neto/open-food-facts/blob/master/src/findfoods/others/imgs/scores_termin.png)
 
 
 Função detailsFoods:
@@ -51,7 +72,7 @@ Função detailsFoods:
 Observações:
 
     Ambos os códigos incluem tratamento de erros, modularização e uso de funções auxiliares para promover a reutilização e a legibilidade do código.
-    Cada função foca em um aspecto específico: busca de produtos (findFoods) e detalhes de produtos (detailsFoods). 
+    Cada função foca em um aspecto específico: busca de produtos (findFoods), busca de produtos através do nutrition e/ou score (foodsScore) e detalhes de produtos (detailsFoods). 
     A utilização de Puppeteer permite a automação da interação com o site, facilitando a extração de dados desejados.
     As rotas Express definidas nos respectivos códigos são acionadas por meio de requisições HTTP, fornecendo uma API para interação externa.
 
