@@ -26,6 +26,21 @@ router.get('/products/:productName', async (req, res) => {
 });
 
 router.get('/products', async (req, res) => {
+  const { nutrition, nova } = req.query;
+  const browser = await browserPupp.launchBrowser();
+
+  try {
+    const results = await foodsServ.foodsScores(browser, nutrition, nova);
+    res.json(results);
+  } catch (error) {
+    console.error('Erro durante a execução da pesquisa:', error);
+    res.status(500).json({ error: 'Erro durante a execução da pesquisa.' });
+  } finally {
+    await browser.close();
+  }
+});
+
+router.get('/products', async (req, res) => {
     {
       const { searchTerm } = req.query;
       const browser = await browserPupp.launchBrowser();

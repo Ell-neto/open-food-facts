@@ -75,6 +75,69 @@ async function findFoods(browser, productName) {
     }
 }
 
+async function foodsScores(browser, nutritionScore, novaScore) {
+
+  const page = await browser.newPage();
+  page.setDefaultNavigationTimeout(60000);
+
+  try {
+
+    await page.goto('https://br.openfoodfacts.org/', { waitUntil: 'networkidle2' });
+    await page.waitForSelector('#products_all li', { timeout: 60000 });
+
+    const productElements = await page.$$('#products_all li');
+
+    const results = productElements.map(async (product) => {
+      const id = await product.$eval('a.list_product_a', (link) => {
+        const idHref = link.getAttribute('href');
+        const idMatch = idHref.match(/produto\/(\d+)\//);
+        return idMatch ? idMatch[1] : 'N/A';
+      });
+  
+      const name = await product.$eval('a.list_product_a', (link) => link.textContent.trim());
+  
+      const nutritionScoreTitle = await product.$eval('img[title^="Nutri-Score"]', (score) => {
+        const title = score.getAttribute('title');
+        const match = title.match(/Nutri-Score (\w)/);
+        return match ? match[1].toUpperCase() : 'unknown';
+      });
+  
+      const novaScoreTitle = await product.$eval('img[title^="NOVA"]', (score) => {
+        const title = score.getAttribute('title');
+        const match = title.match(/NOVA (\d+)/);
+        return match ? parseInt(match[1]) : 'unknown';
+      });
+  
+      console.log(id)
+      console.log(name)
+      console.log(nutritionScoreTitle)
+      console.log(novaScoreTitle)
+  
+      return {
+        id,
+        name,
+        nutritionScore: nutritionScoreTitle,
+        novaScore: novaScoreTitle,
+      };
+    });
+  
+    const filteredResults = await Promise.all(results)
+      .then((results) => results.filter((product) => {
+        const nutritionMatches = nutritionScore === 'unknown' || product.nutritionScore === nutritionScore;
+        const novaMatches = novaScore === 'unknown' || product.novaScore === novaScore;
+        return nutritionMatches || novaMatches;
+      }));
+  
+    return filteredResults.length > 0 ? filteredResults : 'unknown';
+  
+  } catch (error) {
+    console.error('Erro durante a execução da pesquisa:', error);
+    throw new Error('Erro durante a execução da pesquisa');
+  } finally {
+    await page.close();
+    }
+}
+
 async function detailsFoods({ searchTerm }) {
 
   const browser = await browserPupp.launchBrowser();
@@ -336,4 +399,4 @@ async function detailsFoods({ searchTerm }) {
   }
 }
 
-module.exports = { findFoods, detailsFoods };
+module.exports = { findFoods, foodsScores, detailsFoods };
