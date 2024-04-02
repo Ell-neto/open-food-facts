@@ -99,13 +99,19 @@ async function foodsScores(browser, nutritionScore, novaScore) {
       const nutritionScoreTitle = await product.$eval('img[title^="Nutri-Score"]', (score) => {
         const title = score.getAttribute('title');
         const match = title.match(/Nutri-Score (\w)/);
-        return match ? match[1].toUpperCase() : 'unknown';
+        const nutritionScore = match ? match[1].toUpperCase() : 'unknown';
+        const titleMatchNutri = title.match(/- (.*)/);
+        const nutritionTitle = titleMatchNutri ? titleMatchNutri[1] : 'unknown';
+        return [nutritionScore, nutritionTitle]
       });
   
       const novaScoreTitle = await product.$eval('img[title^="NOVA"]', (score) => {
         const title = score.getAttribute('title');
-        const match = title.match(/NOVA (\d+)/);
-        return match ? parseInt(match[1]) : 'unknown';
+        const novaScoreMatch = title.match(/NOVA (\d+)/);
+        const novaScore = novaScoreMatch ? parseInt(novaScoreMatch[1]) : 'unknown';
+        const titleMatch = title.match(/- (.*)/);
+        const novaTitle = titleMatch ? titleMatch[1] : 'unknown';
+        return [novaScore, novaTitle]
       });
   
       console.log(id)
@@ -116,15 +122,21 @@ async function foodsScores(browser, nutritionScore, novaScore) {
       return {
         id,
         name,
-        nutritionScore: nutritionScoreTitle,
-        novaScore: novaScoreTitle,
+        nutrition: {
+            score: nutritionScoreTitle[0],
+            title: nutritionScoreTitle[1]
+        },
+        nova: {
+          score: novaScoreTitle[0],
+          title: novaScoreTitle[1]
+        }
       };
     });
   
     const filteredResults = await Promise.all(results)
       .then((results) => results.filter((product) => {
-        const nutritionMatches = nutritionScore === 'unknown' || product.nutritionScore === nutritionScore;
-        const novaMatches = novaScore === 'unknown' || product.novaScore === novaScore;
+        const nutritionMatches = nutritionScore === 'unknown' || product.nutrition.score === nutritionScore;
+        const novaMatches = novaScore  === 'unknown' || product.nova.score === novaScore;
         return nutritionMatches || novaMatches;
       }));
   
